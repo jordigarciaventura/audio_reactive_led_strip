@@ -30,7 +30,8 @@ class Controller():
         self._view.pressurePlot.onMouseWheelDown(self._decreaseSensitivity)
         self._view.pressurePlot.onMouseWheelUp(self._increaseSensitivity)
         self._view.effectComboBox.currentIndexChanged.connect(self._setEffect)
-        self._view.ipLineEdit.editingFinished.connect(self._setIP)
+        self._view.intensitySlider.valueChanged.connect(self._setIntensity)
+        self._view.addressLineEdit.editingFinished.connect(self._setAddress)
         self._view.portLineEdit.editingFinished.connect(self._setPort)
         self._view.connectionCheckBox.stateChanged.connect(self._setConnection)
 
@@ -54,11 +55,17 @@ class Controller():
         effectName = self._view.getEffectName()
         self._audioVisualizer.setEffect(effectName)
 
-    def _setIP(self):
-        self._connection.ip = self._view.getIP()
+    def _setIntensity(self, intensity):
+        self._audioVisualizer.intensity = intensity/100
+
+    def _setAddress(self):
+        self._connection.address = self._view.getAddress()
 
     def _setPort(self):
-        self._connection.port = int(self._view.getPort())
+        port = self._view.getPort()
+        if port:
+            port = int(port)
+        self._connection.port = port
 
     def _setConnection(self, state):
         self._send = state != 0
@@ -69,7 +76,7 @@ class Controller():
         self._fpsMeter.start()
 
         self._timer = QTimer()
-        self._timer.setInterval(1000/config.FPS)
+        self._timer.setInterval(1000//config.FPS)
         self._timer.timeout.connect(self._routine)
         self._timer.start()
 
@@ -80,20 +87,23 @@ class Controller():
 
     def _routine(self):
         if self._recorder.hasNewAudio:
-            self._drawPlots()
+            data = self._recorder.data
+            data *= self._sensitivity
+            self._audioVisualizer.setData(data)
+
+            if not self._view.minimized:
+                self._drawPlots()
+
             if self._send:
                 self._sendData()
         
         self._fpsMeter.update()
 
     def _drawPlots(self):
-        data = self._recorder.data
-        data *= self._sensitivity
-        
-        self._drawPressure(data)
-        self._drawDb(data)
 
-        self._audioVisualizer.setData(data)
+        self._drawPressure(self._audioVisualizer.data)
+        self._drawDb(self._audioVisualizer.data)
+
         self._drawFrequency()
         self._drawRGB()
         self._drawPreview()
@@ -114,7 +124,7 @@ class Controller():
         self._view.drawDb(dbValue)
 
     def _drawPreview(self):
-        r, g, b = self._audioVisualizer.r, self._audioVisualizer.g, self._audioVisualizer.b
+        r, g, b = self._audioVisualizer.getRGB()
         self._view.drawPreview(list(zip(r, g, b)))
 
     def _sendData(self):

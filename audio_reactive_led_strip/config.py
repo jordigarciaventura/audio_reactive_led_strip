@@ -6,7 +6,7 @@ N_PIXELS = 60
 MIC_RATE = 44100
 """Sampling frequency of the microphone in Hz"""
 
-FPS = 30
+FPS = 60
 """Desired refresh rate of the visualization (frames per second)
 
 FPS indicates the desired refresh rate, or frames-per-second, of the audio

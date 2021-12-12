@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0" prefix="/">
+<qresource>
+   <file>./icons/arrow-down.png</file>
+   <file>./icons/check.png</file>
+   <file>./icons/reload.png</file>
+</qresource>
+</RCC>

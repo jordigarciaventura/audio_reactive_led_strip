@@ -1,0 +1,179 @@
+/* -----QWidget----- */
+QWidget
+{
+    background-color: #000;
+}
+
+/* -----QWidget----- */
+QFrame
+{
+    background-color: #252525;
+}
+
+/*-----QLabel-----*/
+QLabel
+{
+	background-color: transparent;
+	color: #E3E3E3;
+}
+
+/*-----QComboBox-----*/
+QComboBox
+{
+    background-color: #5F5C5C;
+    border: 0px solid;
+    border-radius: 0px;
+    padding-left: 6px;
+    padding-right: 12px;
+    color: #ffffff;
+    height: 20px;
+}
+
+
+QComboBox:hover
+{
+    background-color: #7D7D7D;
+
+}
+
+
+QComboBox:on
+{
+    background-color: #7D7D7D;
+
+}
+
+
+QComboBox QAbstractItemView
+{
+    background-color: #353535;
+    color: #ffffff;
+    selection-background-color: #7D7D7D;
+    selection-color: #ffffff;
+    outline: 0;
+}
+
+
+QComboBox::drop-down
+{
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+    border-left-width: 0px;
+    border-left-color: darkgray;
+    border-left-style: solid; 
+    border-top-right-radius: 3px; 
+    border-bottom-right-radius: 3px;
+
+}
+
+QComboBox::down-arrow
+{
+    image: url(:/icons/arrow-down.png);
+    width: 16px;
+    height: 16px;
+    padding-right: 12px;
+}
+
+/*-----QLineEdit-----*/
+QLineEdit
+{
+	background-color: #5A5A5A;
+	color: #ffffff;
+    border: 0px;
+}
+
+
+/*-----QCheckBox-----*/
+QCheckBox
+{
+    color:#E3E3E3;
+    background-color: transparent;
+}
+
+QCheckBox::indicator
+{
+    color: #5F5C5C;
+    background-color: #5A5A5A;
+    width: 18px;
+    height: 18px;    
+}
+
+QCheckBox::indicator:checked
+{
+    image: url(:/icons/check.png)
+}
+
+
+QCheckBox::indicator:unchecked:hover
+{
+    background-color: #7D7D7D;
+}
+
+
+QCheckBox::disabled
+{
+	color: #656565;
+
+}
+
+
+QCheckBox::indicator:disabled
+{
+	background-color: #656565;
+	color: #656565;
+    border: 1px solid #656565;
+
+}
+
+/*-----QPushButton-----*/
+QPushButton
+{
+	background-color: #5A5A5A;
+	color: #ffffff;
+	border-style: solid;
+	border-width: 0px;
+}
+
+
+QPushButton::hover
+{
+	background-color: #7D7D7D;
+	color: #ffffff;
+}
+
+
+QPushButton::pressed
+{
+	background-color: #5F5C5C;
+	color: #ffffff;
+}
+
+
+/*-----QSlider-----*/
+QSlider::groove:horizontal 
+{
+	background-color: transparent;
+	height: 28px;
+}
+
+
+QSlider::sub-page:horizontal 
+{
+	background-color: #7D7D7D;
+}
+
+
+QSlider::add-page:horizontal 
+{
+	background-color: #5A5A5A;
+}
+
+QSlider::handle:horizontal 
+{
+	background-color: #E3E3E3;
+	width: 4px;
+	height: 30px;
+    margin-top: -1px;
+	margin-bottom: -1px;
+}

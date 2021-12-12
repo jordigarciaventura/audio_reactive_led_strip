@@ -5,7 +5,7 @@ from .ui.window import Ui_Window
 from PyQt5.QtWidgets import QWidget, QGraphicsScene
 from PyQt5.QtGui import QGradient, QValidator, QBrush, QLinearGradient, QColor
 from pyqtgraph import PlotWidget, AxisItem, BarGraphItem
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, QEvent, Qt
 
 from . import config
 from . import recorder
@@ -34,24 +34,25 @@ class RangeValidator(QValidator):
         else:
             return(QValidator.Invalid, text, pos)
 
-class IpValidator(QValidator):
-    def __init__(self):
-        super().__init__()
-        self.regex = r"^(2[0-5][0-5]|1\d{2}|[1-9]\d|\d)(((?<!\.)\.?|(\.(2[0-5][0-5]|1\d{2}|[1-9]\d|\d)))?){1,3}$"
-
-    def validate(self, text, pos):
-        if "localhost".startswith(text):
-            return (QValidator.Acceptable, text, pos)
-
-        if re.match(self.regex, text):
-            return (QValidator.Acceptable, text, pos)
-
-        return(QValidator.Invalid, text, pos)
-
 class Window(QWidget, Ui_Window):
     def __init__(self):
         super().__init__()
         self._setupUI()
+        self.i = 0
+
+        self.minimized = False
+        self._activated = False
+
+    def changeEvent(self, event):
+        if event.type() == QEvent.WindowStateChange:
+            if self.windowState() and self.windowState() == Qt.WindowMinimized:
+                self.minimized = True
+                self._activated = False
+        elif event.type() == QEvent.ActivationChange:
+            if not self._activated:
+                self._activated = True
+            elif self.minimized:
+                self.minimized = False
 
     def _setupUI(self):
         self.setupUi(self)
@@ -64,7 +65,6 @@ class Window(QWidget, Ui_Window):
 
     def _setValidators(self):
         self.portLineEdit.setValidator(RangeValidator(1, 65535))
-        self.ipLineEdit.setValidator(IpValidator())
 
     def setSourceComboBox(self, items):
         # clear all except default
@@ -80,8 +80,8 @@ class Window(QWidget, Ui_Window):
     def setFPSLabel(self, fps):
         self.fpsLabel.setText(str(fps))
 
-    def getIP(self):
-        return self.ipLineEdit.text()
+    def getAddress(self):
+        return self.addressLineEdit.text()
 
     def getPort(self):
         return self.portLineEdit.text()
@@ -127,7 +127,7 @@ class Window(QWidget, Ui_Window):
         ay.setTicks([[(v, str(v)) for v in y]])
         self.pressurePlot.setAxisItems({"bottom": ax, "left": ay})
         self._pressureCurve = self.pressurePlot.plot(pen="y")
-        self.inputSplitter.addWidget(self.pressurePlot)
+        self.inputLayout.addWidget(self.pressurePlot)
         
     def _initFrequencyPlot(self):
         self.frequencyPlot = PlotWidget(enableMenu=False)
@@ -144,7 +144,7 @@ class Window(QWidget, Ui_Window):
         ay.setTicks([[(v, str(v)) for v in y]])
         self.frequencyPlot.setAxisItems({"bottom": ax, "left": ay})
         self._frequencyCurve = self.frequencyPlot.plot(pen="y")
-        self.inputSplitter.addWidget(self.frequencyPlot)
+        self.inputLayout.addWidget(self.frequencyPlot)
 
     def _initDbPlot(self):
         self.dbPlot = PlotWidget(enableMenu=False)
@@ -162,7 +162,7 @@ class Window(QWidget, Ui_Window):
         self._dbBar = BarGraphItem(x=[0], height = 0, width=1, pen='g', brush='g')
 
         self.dbPlot.addItem(self._dbBar)
-        self.inputSplitter.addWidget(self.dbPlot)
+        self.inputLayout.addWidget(self.dbPlot)
 
     def _initRGBPlot(self):
         self.rgbPlot = PlotWidget(enableMenu=False)
@@ -214,7 +214,7 @@ class Window(QWidget, Ui_Window):
 
         for i in range(leds):
             r, g, b = colors[i]
-            color = QColor(r, g, b)
+            color = QColor(int(r), int(g), int(b))
             pos = start + width * i
             gradient.setColorAt(pos, color)
         

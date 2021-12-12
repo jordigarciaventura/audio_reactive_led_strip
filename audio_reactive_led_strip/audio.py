@@ -134,27 +134,30 @@ class AudioVisualizer():
         }
         self.effect = self.effects["Energy"]
 
+        self.intensity = 1
+
     effectNames = ["Energy", "Scroll", "Spectrum"]
 
     def setData(self, data):
-        self._data = data
+        self.data = data
+        self.effect()
 
     def setEffect(self, effectName):
         self.effect = self.effects[effectName]
 
     def getRGB(self):
-        return self.effect()
+        return self.r * self.intensity, self.g * self.intensity, self.b * self.intensity
 
     def frequency(self):
         
-        y = self._data
+        y = self.data
 
         # Construct a rolling window of audio samples
         self.y_roll[:-1] = self.y_roll[1:]
         self.y_roll[-1, :] = np.copy(y)
-        y_data = np.concatenate(self.y_roll, axis=0).astype(np.float32)
+        ydata = np.concatenate(self.y_roll, axis=0).astype(np.float32)
 
-        vol = np.max(np.abs(y_data))
+        vol = np.max(np.abs(ydata))
         if vol < self.min_volume_threshold:
             self._mel = np.zeros(self.n_fft_bins)
             x = np.linspace(self.min_frequency, self.max_frequency, self.n_fft_bins)
@@ -162,11 +165,11 @@ class AudioVisualizer():
             return x, y
         else:
             # Transform audio input into the frequency domain
-            N = len(y_data)
+            N = len(ydata)
             N_zeros = 2**int(np.ceil(np.log2(N))) - N
             # Pad with zeros until the next power of two
-            y_data *= self.fft_window
-            y_padded = np.pad(y_data, (0, N_zeros), mode='constant')
+            ydata *= self.fft_window
+            y_padded = np.pad(ydata, (0, N_zeros), mode='constant')
             YS = np.abs(np.fft.rfft(y_padded)[:N // 2])
             # Construct a Mel filterbank from the FFT data
             self._mel = np.atleast_2d(YS).T * mel_y.T
