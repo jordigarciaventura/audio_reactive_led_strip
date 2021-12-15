@@ -3,5 +3,6 @@
    <file>./icons/arrow-down.png</file>
    <file>./icons/check.png</file>
    <file>./icons/reload.png</file>
+   <file>./icons/icon.ico</file>
 </qresource>
 </RCC>

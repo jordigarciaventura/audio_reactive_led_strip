@@ -154,7 +154,7 @@ class AudioVisualizer():
 
         # Construct a rolling window of audio samples
         self.y_roll[:-1] = self.y_roll[1:]
-        self.y_roll[-1, :] = np.copy(y)
+        self.y_roll[-1] = np.copy(y)
         ydata = np.concatenate(self.y_roll, axis=0).astype(np.float32)
 
         vol = np.max(np.abs(ydata))
@@ -166,15 +166,15 @@ class AudioVisualizer():
         else:
             # Transform audio input into the frequency domain
             N = len(ydata)
-            N_zeros = 2**int(np.ceil(np.log2(N))) - N
-            # Pad with zeros until the next power of two
             ydata *= self.fft_window
-            y_padded = np.pad(ydata, (0, N_zeros), mode='constant')
+            # Pad with zeros until the next power of two
+            N_zeros = 2**int(np.ceil(np.log2(N))) - N
+            y_padded = np.pad(ydata, (0, N_zeros))
             YS = np.abs(np.fft.rfft(y_padded)[:N // 2])
             # Construct a Mel filterbank from the FFT data
             self._mel = np.atleast_2d(YS).T * mel_y.T
-            # Scale data to values more suitable for visualization
             self._mel = np.sum(self._mel, axis=0)
+            # Scale data to values more suitable for visualization
             self._mel = self._mel**2.0
             # Gain normalization
             self.mel_gain.update(np.max(gaussian_filter1d(self._mel, sigma=1.0)))
@@ -306,7 +306,7 @@ def memoize(function):
     return wrapper
 
 
-@memoize
+# @memoize
 def _normalized_linspace(size):
     return np.linspace(0, 1, size)
 

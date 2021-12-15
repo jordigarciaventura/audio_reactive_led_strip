@@ -2,7 +2,7 @@
 
 from .ui.window import Ui_Window
 
-from PyQt5.QtWidgets import QWidget, QGraphicsScene
+from PyQt5.QtWidgets import QWidget, QGraphicsScene, QMainWindow
 from PyQt5.QtGui import QGradient, QValidator, QBrush, QLinearGradient, QColor
 from pyqtgraph import PlotWidget, AxisItem, BarGraphItem
 from PyQt5.QtCore import QSize, QEvent, Qt
@@ -42,6 +42,13 @@ class Window(QWidget, Ui_Window):
 
         self.minimized = False
         self._activated = False
+
+    def closeEvent(self, event):
+        self.callbackOnClose()
+
+
+    def onCloseEvent(self, callback):
+        self.callbackOnClose = callback
 
     def changeEvent(self, event):
         if event.type() == QEvent.WindowStateChange:
@@ -99,26 +106,9 @@ class Window(QWidget, Ui_Window):
         self._initPreviewView()
 
     def _initPressurePlot(self):
-        class ScrollablePlot(PlotWidget):
 
-            def wheelEvent(self, event):
-                if event.angleDelta().y() > 0:
-                    self.callbackOnMouseWheelUp()
-                else:
-                    self.callbackOnMouseWheelDown()
-
-            def onMouseWheelDown(self, callback):
-                self.callbackOnMouseWheelDown = callback
-
-            def onMouseWheelUp(self, callback):
-                self.callbackOnMouseWheelUp = callback
-
-        self.pressurePlot = ScrollablePlot(enableMenu=False)
         self.pressurePlot.setTitle("Pressure")
-        self.pressurePlot.hideButtons()
-        self.pressurePlot.disableAutoRange()
         self.pressurePlot.setRange(xRange=(0, config.SAMPLES_PER_FRAME), yRange=(-1,1))
-        self.pressurePlot.setMouseEnabled(x=False, y=False)
         x = [0, config.SAMPLES_PER_FRAME]
         ax = AxisItem(orientation="bottom")
         ax.setTicks([[(v, str(v)) for v in x]])
@@ -127,15 +117,10 @@ class Window(QWidget, Ui_Window):
         ay.setTicks([[(v, str(v)) for v in y]])
         self.pressurePlot.setAxisItems({"bottom": ax, "left": ay})
         self._pressureCurve = self.pressurePlot.plot(pen="y")
-        self.inputLayout.addWidget(self.pressurePlot)
         
     def _initFrequencyPlot(self):
-        self.frequencyPlot = PlotWidget(enableMenu=False)
         self.frequencyPlot.setTitle("Frequency")
-        self.frequencyPlot.hideButtons()
-        self.frequencyPlot.disableAutoRange()
         self.frequencyPlot.setRange(xRange=(config.MIN_FREQUENCY, config.MAX_FREQUENCY), yRange=(0,1.2))
-        self.frequencyPlot.setMouseEnabled(x=False, y=False)
         x = [config.MIN_FREQUENCY, config.MAX_FREQUENCY]
         ax = AxisItem(orientation="bottom")
         ax.setTicks([[(v, str(v)) for v in x]])
@@ -144,14 +129,9 @@ class Window(QWidget, Ui_Window):
         ay.setTicks([[(v, str(v)) for v in y]])
         self.frequencyPlot.setAxisItems({"bottom": ax, "left": ay})
         self._frequencyCurve = self.frequencyPlot.plot(pen="y")
-        self.inputLayout.addWidget(self.frequencyPlot)
 
     def _initDbPlot(self):
-        self.dbPlot = PlotWidget(enableMenu=False)
-        self.dbPlot.setMaximumSize(QSize(40, 16777215))
         self.dbPlot.setTitle("dB")
-        self.dbPlot.hideButtons()
-        self.dbPlot.disableAutoRange()
         self.dbPlot.setRange(xRange=(0,0), yRange=(0,1))
         self.dbPlot.setMouseEnabled(x=False, y=False)
         ax = AxisItem(orientation="bottom")
@@ -162,15 +142,10 @@ class Window(QWidget, Ui_Window):
         self._dbBar = BarGraphItem(x=[0], height = 0, width=1, pen='g', brush='g')
 
         self.dbPlot.addItem(self._dbBar)
-        self.inputLayout.addWidget(self.dbPlot)
 
     def _initRGBPlot(self):
-        self.rgbPlot = PlotWidget(enableMenu=False)
         self.rgbPlot.setTitle("RGB")
-        self.rgbPlot.hideButtons()
-        self.rgbPlot.disableAutoRange()
         self.rgbPlot.setRange(xRange=(0, config.N_PIXELS), yRange=(0,255))
-        self.rgbPlot.setMouseEnabled(x=False, y=False)
         x = [0, config.N_PIXELS]
         ax = AxisItem(orientation="bottom")
         ax.setTicks([[(v, str(v)) for v in x]])
@@ -179,7 +154,6 @@ class Window(QWidget, Ui_Window):
         self._rCurve = self.rgbPlot.plot(pen="r")
         self._gCurve = self.rgbPlot.plot(pen="g")
         self._bCurve = self.rgbPlot.plot(pen="b")
-        self.outputLayout.insertWidget(0, self.rgbPlot)
 
     def _initPreviewView(self):
         previewScene = QGraphicsScene()

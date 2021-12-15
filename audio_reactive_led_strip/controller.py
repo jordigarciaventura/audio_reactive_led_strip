@@ -14,23 +14,23 @@ class Controller():
         self._recorder = recorder
         
         self._fpsMeter = FPSMeter(config.FPS, self._view.setFPSLabel)
+        self._intensity = 1
         self._sensitivity = 1
 
         self.db = audio.DBMeter(decrement=0.05)
         self._audioVisualizer = audio.AudioVisualizer(n_samples=config.SAMPLES_PER_FRAME)
 
         self._connection = wifi.Connection()
-        self._send = False
+        self.send = False
 
         self._connectSignals()
 
     def _connectSignals(self):
         self._view.sourceButton.clicked.connect(self._updateSourceComboBox)
         self._view.sourceComboBox.currentIndexChanged.connect(self._setSourceIndex)
-        self._view.pressurePlot.onMouseWheelDown(self._decreaseSensitivity)
-        self._view.pressurePlot.onMouseWheelUp(self._increaseSensitivity)
         self._view.effectComboBox.currentIndexChanged.connect(self._setEffect)
         self._view.intensitySlider.valueChanged.connect(self._setIntensity)
+        self._view.sensitivitySlider.valueChanged.connect(self._setSensitivity)
         self._view.addressLineEdit.editingFinished.connect(self._setAddress)
         self._view.portLineEdit.editingFinished.connect(self._setPort)
         self._view.connectionCheckBox.stateChanged.connect(self._setConnection)
@@ -45,18 +45,18 @@ class Controller():
             self._recorder.update(index=index-1)
             self._start()
 
-    def _decreaseSensitivity(self):
-        self._sensitivity /= 1.2
-
-    def _increaseSensitivity(self):
-        self._sensitivity *= 1.2 
-
     def _setEffect(self):
         effectName = self._view.getEffectName()
         self._audioVisualizer.setEffect(effectName)
 
     def _setIntensity(self, intensity):
         self._audioVisualizer.intensity = intensity/100
+
+    def _setSensitivity(self, sensitivity):
+        self._sensitivity = sensitivity/100
+
+    def _applySensitivity(self, data):
+        return data * self._sensitivity**4 * 1000
 
     def _setAddress(self):
         self._connection.address = self._view.getAddress()
@@ -68,7 +68,7 @@ class Controller():
         self._connection.port = port
 
     def _setConnection(self, state):
-        self._send = state != 0
+        self.send = state != 0
 
     def _start(self):
         self._recorder.start()
@@ -88,14 +88,14 @@ class Controller():
     def _routine(self):
         if self._recorder.hasNewAudio:
             data = self._recorder.data
-            data *= self._sensitivity
+            data = self._applySensitivity(data)
             self._audioVisualizer.setData(data)
 
             if not self._view.minimized:
                 self._drawPlots()
 
-            if self._send:
-                self._sendData()
+            if self.send:
+                self.sendData()
         
         self._fpsMeter.update()
 
@@ -127,6 +127,6 @@ class Controller():
         r, g, b = self._audioVisualizer.getRGB()
         self._view.drawPreview(list(zip(r, g, b)))
 
-    def _sendData(self):
+    def sendData(self):
         r, g, b = self._audioVisualizer.getRGB()
         self._connection.send(r, g, b)
