@@ -345,5 +345,5 @@ class Ui_Window(object):
         self.connectionCheckBox.setText(_translate("Window", "Send"))
         self.fpsLabel.setText(_translate("Window", "60"))
         self.label.setText(_translate("Window", "FPS"))
-from .widgets import JumpSlider, ReadOnlyPlot
-from . import resources_rc
+from widgets import JumpSlider, ReadOnlyPlot
+import resources_rc

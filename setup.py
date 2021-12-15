@@ -13,5 +13,10 @@ setup(
     version = "0.1",
     description = "My GUI application!",
     # options = {"build_exe": build_exe_options},
-    executables = [Executable("cli.py", base=base)]
+    executables = [Executable("cli.py", base=base)],
+    author="Jordi García Ventura",
+    author_email="jordigarciaventura@gmail.com",
+    license="MIT",
+    python_requires=">=3.6.0",
+    py_modules=['audio_reactive_led_strip']
 )
