@@ -1,6 +1,6 @@
 import time
 
-from . import config
+from ..common import config
 
 class FPSMeter():
     def __init__(self, fps, callback):

@@ -1,19 +1,15 @@
+import numpy as np
 from PyQt5.QtCore import QTimer
 
 from . import config
-from . import recorder
-from . import audio
-from . import wifi
-from .fps import FPSMeter
-
-import numpy as np
+from ..utils import recorder, audio, wifi, fps
 
 class Controller():
     def __init__(self, recorder, view):
         self._view = view
         self._recorder = recorder
         
-        self._fpsMeter = FPSMeter(config.FPS, self._view.setFPSLabel)
+        self._fpsMeter = fps.FPSMeter(config.FPS, self._view.setFPSLabel)
         self._intensity = 1
         self._sensitivity = 1
 

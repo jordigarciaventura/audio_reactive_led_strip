@@ -1,8 +1,9 @@
 import numpy as np
-from .config import *
+from scipy.ndimage.filters import gaussian_filter1d
+
+from ..common import config
 from .melbank import compute_melmat
 
-from scipy.ndimage.filters import gaussian_filter1d
 
 # def db(data):
 #     db = np.max(np.abs(data))
@@ -278,12 +279,12 @@ def rfft(data):
 
 def create_mel_bank():
     global samples, mel_y, mel_x
-    samples = int(MIC_RATE * N_ROLLING_HISTORY / (2.0 * FPS))
-    mel_y, (_, mel_x) = compute_melmat(num_mel_bands=N_FFT_BINS,
-                                               freq_min=MIN_FREQUENCY,
-                                               freq_max=MAX_FREQUENCY,
+    samples = int(config.MIC_RATE * config.N_ROLLING_HISTORY / (2.0 * config.FPS))
+    mel_y, (_, mel_x) = compute_melmat(num_mel_bands=config.N_FFT_BINS,
+                                               freq_min=config.MIN_FREQUENCY,
+                                               freq_max=config.MAX_FREQUENCY,
                                                num_fft_bands=samples,
-                                               sample_rate=MIC_RATE)
+                                               sample_rate=config.MIC_RATE)
 
 samples = None
 mel_y = None

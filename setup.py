@@ -10,7 +10,7 @@ if sys.platform == "win32":
 
 setup(
     name = "audio_reactive_led_strip",
-    version = "0.1",
+    version = "0.1.0",
     description = "My GUI application!",
     # options = {"build_exe": build_exe_options},
     executables = [Executable("cli.py", base=base)],

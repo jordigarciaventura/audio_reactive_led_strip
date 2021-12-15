@@ -1,18 +1,14 @@
-"""This module provides the Reactive LED Strip main window."""
-
-from .ui.window import Ui_Window
-
-from PyQt5.QtWidgets import QWidget, QGraphicsScene, QMainWindow
-from PyQt5.QtGui import QGradient, QValidator, QBrush, QLinearGradient, QColor
-from pyqtgraph import PlotWidget, AxisItem, BarGraphItem
-from PyQt5.QtCore import QSize, QEvent, Qt
-
-from . import config
-from . import recorder
-from .audio import AudioVisualizer
-
-import re
 import numpy as np
+
+from PyQt5.QtWidgets import QWidget, QGraphicsScene
+from PyQt5.QtGui import QGradient, QValidator, QBrush, QLinearGradient, QColor
+from PyQt5.QtCore import QEvent, Qt
+from pyqtgraph import AxisItem, BarGraphItem
+
+from ..gui.window import Ui_Window
+from . import config
+from ..utils import recorder, audio
+
 
 class RangeValidator(QValidator):
     def __init__(self, min, max):
@@ -66,7 +62,7 @@ class Window(QWidget, Ui_Window):
         self._setValidators()
         self.setSourceComboBox(recorder.getSourceNames())
         self.setFPSLabel(config.FPS)
-        self.setEffectComboBox(AudioVisualizer.effectNames)
+        self.setEffectComboBox(audio.AudioVisualizer.effectNames)
         self._initPlots()
         self.clearPlots()
 

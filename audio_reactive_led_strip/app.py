@@ -1,27 +1,24 @@
-"""This module provides the Reactive LED Strip application."""
-
 import sys
 import os
-from pathlib import Path
-from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QMenu
 
-from .view import Window
-from .controller import Controller
-from .recorder import AudioStream
-from . import config
-from .ui import resources_rc
+from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QMenu
 from PyQt5.QtGui import QIcon
+
+from .common.view import Window
+from .common.controller import Controller
+from .utils.recorder import AudioStream
+from .common import config
+from .resources import resources_rc
     
 def main():
-    # Create the application
+    # Create application
     app = QApplication(["Reactive LED Strip"])
-    app.setQuitOnLastWindowClosed(False)
-
     app.setWindowIcon(QIcon(":/icons/icon.ico"))
+    app.setQuitOnLastWindowClosed(False)
     
     # Add stylesheet
     dirname = os.path.dirname(__file__)
-    stylesheetPath = os.path.join(dirname, "ui", "stylesheet.qss")
+    stylesheetPath = os.path.join(dirname, "gui", "stylesheet.qss")
     
     with open(stylesheetPath) as f:
         app.setStyleSheet(f.read())
@@ -29,47 +26,40 @@ def main():
     # Create and show the main window
     win = Window()
     win.show()
-
     recorder = AudioStream( samplerate=config.MIC_RATE,
                             numframes=config.SAMPLES_PER_FRAME, 
                             blocksize=config.SAMPLES_PER_FRAME)
     controller = Controller(recorder, win)
 
-    # Close
-
-    def quitApplicattion():
-        app.exit()
-
+    # Close event
     def onCloseEvent():
         if controller.send:
             win.hide()
         else:
-            quitApplicattion()
+            app.exit()
 
     win.onCloseEvent(onCloseEvent)
 
-    # Show
-    def showWindow():
-        win.show()
-
-
-    # Tray
+    # System Tray
     tray = QSystemTrayIcon()
+    tray.setIcon(QIcon(":/icons/icon.ico"))
 
     trayMenu = QMenu()
+
     trayOpen = trayMenu.addAction("&Open")
-    trayOpen.triggered.connect(showWindow)
+    trayOpen.triggered.connect(lambda: win.show())
+
     trayExit = trayMenu.addAction("E&xit")
-    trayExit.triggered.connect(quitApplicattion)
+    trayExit.triggered.connect(lambda: app.exit())
+
     tray.setContextMenu(trayMenu)
 
-    tray.setIcon(QIcon(":/icons/icon.ico"))
     tray.show()
-        
 
     # Run the event loop
     p = app.exec()
 
+    # Finalization
     recorder.exit()
 
     sys.exit(p)
