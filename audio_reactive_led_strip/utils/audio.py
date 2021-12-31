@@ -46,7 +46,7 @@ class DBMeter:
         self.decrement = decrement
 
     def update(self, data):
-        
+
         self._decrease()
 
         db = max(abs(data))
@@ -63,8 +63,10 @@ class DBMeter:
         if self.db < 0:
             self.db = 0
 
+
 class ExpFilter:
     """Simple exponential smoothing filter"""
+
     def __init__(self, val=0.0, alpha_decay=0.5, alpha_rise=0.5):
         """Small rise / decay factors = more smoothing"""
         assert 0.0 < alpha_decay < 1.0, 'Invalid decay smoothing factor'
@@ -83,10 +85,11 @@ class ExpFilter:
         self.value = alpha * value + (1.0 - alpha) * self.value
         return self.value
 
+
 class AudioVisualizer():
 
     def __init__(self,  n_fft_bins=24, n_samples=735, n_rolling_history=2, n_pixels=60, min_volume_threshold=1e-6,
-                        min_frequency = 200, max_frequency=12000):
+                 min_frequency=200, max_frequency=12000):
         self.n_fft_bins = n_fft_bins
         self.n_samples = n_samples
         self.n_rolling_history = n_rolling_history
@@ -97,23 +100,24 @@ class AudioVisualizer():
 
         # frequency
         self.fft_plot_filter = ExpFilter(np.tile(0.1, self.n_fft_bins),
-                         alpha_decay=0.5, alpha_rise=0.99)
+                                         alpha_decay=0.5, alpha_rise=0.99)
         self.mel_gain = ExpFilter(np.tile(0.1, self.n_fft_bins),
-                         alpha_decay=0.01, alpha_rise=0.99)
+                                  alpha_decay=0.01, alpha_rise=0.99)
         self.mel_smoothing = ExpFilter(np.tile(0.1, self.n_fft_bins),
-                         alpha_decay=0.5, alpha_rise=0.99)
+                                       alpha_decay=0.5, alpha_rise=0.99)
         self.fft_window = np.hamming(self.n_samples * self.n_rolling_history)
-        self.y_roll = np.random.rand(self.n_rolling_history, self.n_samples) / 1e16
+        self.y_roll = np.random.rand(
+            self.n_rolling_history, self.n_samples) / 1e16
 
         # spectrum
         self._prev_spectrum = np.tile(0.01, n_pixels // 2)
 
         self.r_filt = ExpFilter(np.tile(0.01, self.n_pixels // 2),
-                       alpha_decay=0.2, alpha_rise=0.99)
+                                alpha_decay=0.2, alpha_rise=0.99)
         self.b_filt = ExpFilter(np.tile(0.01, self.n_pixels // 2),
-                       alpha_decay=0.1, alpha_rise=0.5)
+                                alpha_decay=0.1, alpha_rise=0.5)
         self.common_mode = ExpFilter(np.tile(0.01, self.n_pixels // 2),
-                       alpha_decay=0.99, alpha_rise=0.01)
+                                     alpha_decay=0.99, alpha_rise=0.01)
 
         self._melUpdated = False
 
@@ -123,10 +127,10 @@ class AudioVisualizer():
 
         # energy
         self.p_filt = ExpFilter(np.tile(1, (3, self.n_pixels // 2)),
-                       alpha_decay=0.1, alpha_rise=0.99)
+                                alpha_decay=0.1, alpha_rise=0.99)
         self.p = np.tile(1.0, (3, self.n_pixels // 2))
         self.gain = ExpFilter(np.tile(0.01, self.n_fft_bins),
-                            alpha_decay=0.001, alpha_rise=0.99)
+                              alpha_decay=0.001, alpha_rise=0.99)
 
         self.effects = {
             "Energy": self.energyEffect,
@@ -150,7 +154,7 @@ class AudioVisualizer():
         return self.r * self.intensity, self.g * self.intensity, self.b * self.intensity
 
     def frequency(self):
-        
+
         y = self.data
 
         # Construct a rolling window of audio samples
@@ -161,7 +165,8 @@ class AudioVisualizer():
         vol = np.max(np.abs(ydata))
         if vol < self.min_volume_threshold:
             self._mel = np.zeros(self.n_fft_bins)
-            x = np.linspace(self.min_frequency, self.max_frequency, self.n_fft_bins)
+            x = np.linspace(self.min_frequency,
+                            self.max_frequency, self.n_fft_bins)
             y = np.zeros(self.n_fft_bins)
             return x, y
         else:
@@ -178,13 +183,15 @@ class AudioVisualizer():
             # Scale data to values more suitable for visualization
             self._mel = self._mel**2.0
             # Gain normalization
-            self.mel_gain.update(np.max(gaussian_filter1d(self._mel, sigma=1.0)))
+            self.mel_gain.update(
+                np.max(gaussian_filter1d(self._mel, sigma=1.0)))
             self._mel /= self.mel_gain.value
             self._mel = self.mel_smoothing.update(self._mel)
 
             self._melUpdated = True
 
-            x = np.linspace(self.min_frequency, self.max_frequency, len(self._mel))
+            x = np.linspace(self.min_frequency,
+                            self.max_frequency, len(self._mel))
             return x, self.fft_plot_filter.update(self._mel)
 
     def spectrumEffect(self):
@@ -215,7 +222,7 @@ class AudioVisualizer():
         self._melUpdated = False
 
         y = self._mel
-        
+
         """Effect that originates in the center and scrolls outwards"""
         y = y**2.0
         self.gain.update(y)
@@ -233,7 +240,8 @@ class AudioVisualizer():
         self.p[1, 0] = g
         self.p[2, 0] = b
 
-        self.r, self.g, self.b = np.concatenate((self.p[:, ::-1], self.p), axis=1)
+        self.r, self.g, self.b = np.concatenate(
+            (self.p[:, ::-1], self.p), axis=1)
         return self.r, self.g, self.b
 
     def energyEffect(self):
@@ -269,27 +277,33 @@ class AudioVisualizer():
         self.p[2, :] = gaussian_filter1d(self.p[2, :], sigma=4.0)
 
         # Set the new pixel value
-        self.r, self.g, self.b = np.concatenate((self.p[:, ::-1], self.p), axis=1)
+        self.r, self.g, self.b = np.concatenate(
+            (self.p[:, ::-1], self.p), axis=1)
         return self.r, self.g, self.b
+
 
 def rfft(data):
     y = np.abs(np.fft.rfft(data))
     x = np.fft.rfftfreq(len(data), 1./44100)
     return x, y
 
+
 def create_mel_bank():
     global samples, mel_y, mel_x
-    samples = int(config.MIC_RATE * config.N_ROLLING_HISTORY / (2.0 * config.FPS))
+    samples = int(config.MIC_RATE *
+                  config.N_ROLLING_HISTORY / (2.0 * config.FPS))
     mel_y, (_, mel_x) = compute_melmat(num_mel_bands=config.N_FFT_BINS,
-                                               freq_min=config.MIN_FREQUENCY,
-                                               freq_max=config.MAX_FREQUENCY,
-                                               num_fft_bands=samples,
-                                               sample_rate=config.MIC_RATE)
+                                       freq_min=config.MIN_FREQUENCY,
+                                       freq_max=config.MAX_FREQUENCY,
+                                       num_fft_bands=samples,
+                                       sample_rate=config.MIC_RATE)
+
 
 samples = None
 mel_y = None
 mel_x = None
 create_mel_bank()
+
 
 def memoize(function):
     """Provides a decorator for memoizing functions"""

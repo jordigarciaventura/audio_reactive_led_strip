@@ -7,3 +7,4 @@ PyQt5-sip==12.9.0
 pyqtgraph==0.12.3
 scipy==1.7.3
 SoundCard==0.4.1
+cx_Freeze==6.9

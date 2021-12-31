@@ -51,9 +51,9 @@ Functions
 """
 
 
+
+
 from numpy import abs, append, arange, insert, linspace, log10, round, zeros
-
-
 def hertz_to_mel(freq):
     """Returns mel-frequency from linear frequency input.
 
@@ -162,7 +162,7 @@ def compute_melmat(num_mel_bands=12, freq_min=64, freq_max=8000,
             freq_min,
             freq_max,
             num_fft_bands
-    )
+        )
 
     len_fft = float(num_fft_bands) / sample_rate
     center_frequencies_hz = mel_to_hertz(center_frequencies_mel)
@@ -174,7 +174,7 @@ def compute_melmat(num_mel_bands=12, freq_min=64, freq_max=8000,
     for imelband, (center, lower, upper) in enumerate(zip(
             center_frequencies_hz, lower_edges_hz, upper_edges_hz)):
 
-        left_slope = (freqs >= lower)  == (freqs <= center)
+        left_slope = (freqs >= lower) == (freqs <= center)
         melmat[imelband, left_slope] = (
             (freqs[left_slope] - lower) / (center - lower)
         )

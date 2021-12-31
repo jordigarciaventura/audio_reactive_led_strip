@@ -1,6 +1,7 @@
 import soundcard as sc
 import threading
 
+
 class AudioStream():
     def __init__(self, samplerate=44100, channels=1, blocksize=1024, numframes=1024, index=0):
         self.samplerate = samplerate
@@ -8,7 +9,7 @@ class AudioStream():
         self.blocksize = blocksize
         self.numframes = numframes
         self.index = index
-        
+
         self.hasNewAudio = False
         self._requiresUpdate = False
         self._paused = True
@@ -64,6 +65,7 @@ class AudioStream():
         """Get the ring buffer."""
         self.hasNewAudio = False
         return self._data
+
 
 def getSourceNames():
     sources = sc.all_microphones(True)

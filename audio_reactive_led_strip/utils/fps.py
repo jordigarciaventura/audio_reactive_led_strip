@@ -2,6 +2,7 @@ import time
 
 from ..common import config
 
+
 class FPSMeter():
     def __init__(self, fps, callback):
         self.fps = fps
@@ -14,6 +15,6 @@ class FPSMeter():
     def update(self):
         self.frames += 1
         if self.frames == self.fps:
-            fps = int(self.fps/(time.time()- self.start_time))
+            fps = int(self.fps/(time.time() - self.start_time))
             self.callback(fps)
             self.start()

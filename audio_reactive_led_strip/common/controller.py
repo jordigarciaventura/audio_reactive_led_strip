@@ -4,17 +4,19 @@ from PyQt5.QtCore import QTimer
 from . import config
 from ..utils import recorder, audio, wifi, fps
 
+
 class Controller():
     def __init__(self, recorder, view):
         self._view = view
         self._recorder = recorder
-        
+
         self._fpsMeter = fps.FPSMeter(config.FPS, self._view.setFPSLabel)
         self._intensity = 1
         self._sensitivity = 1
 
         self.db = audio.DBMeter(decrement=0.05)
-        self._audioVisualizer = audio.AudioVisualizer(n_samples=config.SAMPLES_PER_FRAME)
+        self._audioVisualizer = audio.AudioVisualizer(
+            n_samples=config.SAMPLES_PER_FRAME)
 
         self._connection = wifi.Connection()
         self.send = False
@@ -23,7 +25,8 @@ class Controller():
 
     def _connectSignals(self):
         self._view.sourceButton.clicked.connect(self._updateSourceComboBox)
-        self._view.sourceComboBox.currentIndexChanged.connect(self._setSourceIndex)
+        self._view.sourceComboBox.currentIndexChanged.connect(
+            self._setSourceIndex)
         self._view.effectComboBox.currentIndexChanged.connect(self._setEffect)
         self._view.intensitySlider.valueChanged.connect(self._setIntensity)
         self._view.sensitivitySlider.valueChanged.connect(self._setSensitivity)
@@ -92,7 +95,7 @@ class Controller():
 
             if self.send:
                 self.sendData()
-        
+
         self._fpsMeter.update()
 
     def _drawPlots(self):

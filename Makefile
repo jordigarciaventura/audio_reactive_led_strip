@@ -1,5 +1,5 @@
 init:
-	pip install -r requeriments.txt
+	pip install -r requirements.txt
 
 rc:
 	pyrcc5 -o "audio_reactive_led_strip/resources/resources_rc.py" "audio_reactive_led_strip/resources/resources.qrc"
@@ -9,3 +9,6 @@ gui:
 
 run:
 	python cli.py
+
+exe:
+	python setup.py build

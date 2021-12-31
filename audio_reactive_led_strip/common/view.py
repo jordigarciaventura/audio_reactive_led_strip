@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QWidget, QGraphicsScene
 from PyQt5.QtGui import QGradient, QValidator, QBrush, QLinearGradient, QColor
 from PyQt5.QtCore import QEvent, Qt
 from pyqtgraph import AxisItem, BarGraphItem
+import re
 
 from ..gui.window import Ui_Window
 from . import config
@@ -20,6 +21,8 @@ class RangeValidator(QValidator):
         if not text:
             return(QValidator.Acceptable, text, pos)
 
+        text = text.strip()
+
         try:
             value = int(text)
         except:
@@ -29,6 +32,23 @@ class RangeValidator(QValidator):
             return (QValidator.Acceptable, text, pos)
         else:
             return(QValidator.Invalid, text, pos)
+
+
+class IpValidator(QValidator):
+    def __init__(self):
+        super().__init__()
+
+    def validate(self, text, pos):
+        if not text:
+            return(QValidator.Acceptable, text, pos)
+
+        text = text.strip()
+
+        if (re.match(r"^(2[0-5][0-5]|1\d{2}|[1-9]\d|\d)(((?<!\.)\.?|(\.(2[0-5][0-5]|1\d{2}|[1-9]\d|\d)))?){1,3}$", text)):
+            return (QValidator.Acceptable, text, pos)
+        else:
+            return(QValidator.Invalid, text, pos)
+
 
 class Window(QWidget, Ui_Window):
     def __init__(self):
@@ -41,7 +61,6 @@ class Window(QWidget, Ui_Window):
 
     def closeEvent(self, event):
         self.callbackOnClose()
-
 
     def onCloseEvent(self, callback):
         self.callbackOnClose = callback
@@ -68,6 +87,7 @@ class Window(QWidget, Ui_Window):
 
     def _setValidators(self):
         self.portLineEdit.setValidator(RangeValidator(1, 65535))
+        self.addressLineEdit.setValidator(IpValidator())
 
     def setSourceComboBox(self, items):
         # clear all except default
@@ -104,7 +124,8 @@ class Window(QWidget, Ui_Window):
     def _initPressurePlot(self):
 
         self.pressurePlot.setTitle("Pressure")
-        self.pressurePlot.setRange(xRange=(0, config.SAMPLES_PER_FRAME), yRange=(-1,1))
+        self.pressurePlot.setRange(
+            xRange=(0, config.SAMPLES_PER_FRAME), yRange=(-1, 1))
         x = [0, config.SAMPLES_PER_FRAME]
         ax = AxisItem(orientation="bottom")
         ax.setTicks([[(v, str(v)) for v in x]])
@@ -113,10 +134,11 @@ class Window(QWidget, Ui_Window):
         ay.setTicks([[(v, str(v)) for v in y]])
         self.pressurePlot.setAxisItems({"bottom": ax, "left": ay})
         self._pressureCurve = self.pressurePlot.plot(pen="y")
-        
+
     def _initFrequencyPlot(self):
         self.frequencyPlot.setTitle("Frequency")
-        self.frequencyPlot.setRange(xRange=(config.MIN_FREQUENCY, config.MAX_FREQUENCY), yRange=(0,1.2))
+        self.frequencyPlot.setRange(
+            xRange=(config.MIN_FREQUENCY, config.MAX_FREQUENCY), yRange=(0, 1.2))
         x = [config.MIN_FREQUENCY, config.MAX_FREQUENCY]
         ax = AxisItem(orientation="bottom")
         ax.setTicks([[(v, str(v)) for v in x]])
@@ -128,20 +150,21 @@ class Window(QWidget, Ui_Window):
 
     def _initDbPlot(self):
         self.dbPlot.setTitle("dB")
-        self.dbPlot.setRange(xRange=(0,0), yRange=(0,1))
+        self.dbPlot.setRange(xRange=(0, 0), yRange=(0, 1))
         self.dbPlot.setMouseEnabled(x=False, y=False)
         ax = AxisItem(orientation="bottom")
-        ax.setTicks([[(0,"0")]])
+        ax.setTicks([[(0, "0")]])
         self.dbPlot.setAxisItems({"bottom": ax})
         self.dbPlot.hideAxis("left")
 
-        self._dbBar = BarGraphItem(x=[0], height = 0, width=1, pen='g', brush='g')
+        self._dbBar = BarGraphItem(
+            x=[0], height=0, width=1, pen='g', brush='g')
 
         self.dbPlot.addItem(self._dbBar)
 
     def _initRGBPlot(self):
         self.rgbPlot.setTitle("RGB")
-        self.rgbPlot.setRange(xRange=(0, config.N_PIXELS), yRange=(0,255))
+        self.rgbPlot.setRange(xRange=(0, config.N_PIXELS), yRange=(0, 255))
         x = [0, config.N_PIXELS]
         ax = AxisItem(orientation="bottom")
         ax.setTicks([[(v, str(v)) for v in x]])
@@ -172,22 +195,23 @@ class Window(QWidget, Ui_Window):
     def drawPreview(self, colors):
         leds = len(colors)
 
-        if leds == 0: return
+        if leds == 0:
+            return
 
         width = 1/leds
         start = width/2
 
         gradient = QLinearGradient()
         gradient.setCoordinateMode(QGradient.ObjectMode)
-        gradient.setStart(0,0)
-        gradient.setFinalStop(1,0)
+        gradient.setStart(0, 0)
+        gradient.setFinalStop(1, 0)
 
         for i in range(leds):
             r, g, b = colors[i]
             color = QColor(int(r), int(g), int(b))
             pos = start + width * i
             gradient.setColorAt(pos, color)
-        
+
         brush = QBrush(gradient)
         self.previewView.setBackgroundBrush(brush)
 
@@ -207,9 +231,10 @@ class Window(QWidget, Ui_Window):
         self.drawPressure(np.zeros(config.SAMPLES_PER_FRAME))
 
     def clearFrequency(self):
-        x = np.linspace(config.MIN_FREQUENCY, config.MAX_FREQUENCY, config.N_FFT_BINS)
+        x = np.linspace(config.MIN_FREQUENCY,
+                        config.MAX_FREQUENCY, config.N_FFT_BINS)
         y = np.zeros(config.N_FFT_BINS)
-        self.drawFrequency((x,y))
+        self.drawFrequency((x, y))
 
     def clearPreview(self):
         black = np.zeros((config.N_PIXELS, 3))
