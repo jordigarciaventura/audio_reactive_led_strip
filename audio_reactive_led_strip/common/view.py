@@ -54,27 +54,14 @@ class Window(QWidget, Ui_Window):
     def __init__(self):
         super().__init__()
         self._setupUI()
-        self.i = 0
-
-        self.minimized = False
-        self._activated = False
-
+        self.callbackOnClose = None
+        
     def closeEvent(self, event):
-        self.callbackOnClose()
+        if self.callbackOnClose:
+            self.callbackOnClose()
 
     def onCloseEvent(self, callback):
         self.callbackOnClose = callback
-
-    def changeEvent(self, event):
-        if event.type() == QEvent.WindowStateChange:
-            if self.windowState() and self.windowState() == Qt.WindowMinimized:
-                self.minimized = True
-                self._activated = False
-        elif event.type() == QEvent.ActivationChange:
-            if not self._activated:
-                self._activated = True
-            elif self.minimized:
-                self.minimized = False
 
     def _setupUI(self):
         self.setupUi(self)

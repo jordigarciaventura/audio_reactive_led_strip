@@ -90,8 +90,7 @@ class Controller():
             data = self._applySensitivity(data)
             self._audioVisualizer.setData(data)
 
-            if not self._view.minimized:
-                self._drawPlots()
+            self._drawPlots()
 
             if self.send:
                 self.sendData()
