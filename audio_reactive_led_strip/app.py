@@ -1,6 +1,9 @@
 import sys
 import os
 
+import warnings
+warnings.simplefilter("ignore", UserWarning)
+
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QMenu
 from PyQt5.QtGui import QIcon
 
@@ -9,7 +12,6 @@ from .common.controller import Controller
 from .utils.recorder import AudioStream
 from .common import config
 from .resources import resources_rc
-
 
 def main():
     # Create application

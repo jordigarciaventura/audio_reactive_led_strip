@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'audio_reactive_led_strip/gui/window.ui'
+# Form implementation generated from reading ui file 'c:\Users\jordigv\Documents\Audio Reactive LED Strip\audio_reactive_led_strip\audio_reactive_led_strip\gui\window.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -346,4 +346,4 @@ class Ui_Window(object):
         self.fpsLabel.setText(_translate("Window", "60"))
         self.label.setText(_translate("Window", "FPS"))
 from .widgets import JumpSlider, ReadOnlyPlot
-from ..resources import resources_rc
+import resources_rc

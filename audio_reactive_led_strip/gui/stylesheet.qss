@@ -33,7 +33,6 @@ QComboBox
 QComboBox:hover
 {
     background-color: #7D7D7D;
-
 }
 
 
@@ -176,4 +175,23 @@ QSlider::handle:horizontal
 	height: 30px;
     margin-top: -1px;
 	margin-bottom: -1px;
+}
+
+/*-----QMenu-----*/
+
+QMenu
+{
+    background-color: #5F5C5C;
+    color: #FFFFFF;
+    font: 9pt "Roboto";
+}
+
+QMenu::item
+{
+    background-color: transparent;
+}
+
+QMenu::item:selected 
+{
+    background-color: #7D7D7D;
 }
