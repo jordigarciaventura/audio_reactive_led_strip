@@ -8,7 +8,7 @@ import re
 
 from ..gui.window import Ui_Window
 from . import config
-from ..utils import recorder, audio
+from ..utils import recorder, audio, color
 
 
 class RangeValidator(QValidator):
@@ -55,7 +55,7 @@ class Window(QWidget, Ui_Window):
         super().__init__()
         self._setupUI()
         self.callbackOnClose = None
-        
+
     def closeEvent(self, event):
         if self.callbackOnClose:
             self.callbackOnClose()
@@ -195,9 +195,11 @@ class Window(QWidget, Ui_Window):
 
         for i in range(leds):
             r, g, b = colors[i]
-            color = QColor(int(r), int(g), int(b))
+            qColor = QColor(
+                color.gamma_lut[int(r)], color.gamma_lut[int(g)], color.gamma_lut[int(b)])
+            # qColor = QColor(int(r), int(g), int(b))
             pos = start + width * i
-            gradient.setColorAt(pos, color)
+            gradient.setColorAt(pos, qColor)
 
         brush = QBrush(gradient)
         self.previewView.setBackgroundBrush(brush)

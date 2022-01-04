@@ -10,21 +10,6 @@ from .melbank import compute_melmat
 #     if db > 1: return 1
 #     return db
 
-# def rgb(db):
-#     r, g, b = hsv_to_rgb(db, 1, 1)
-#     return r, g, b
-
-# def hsv_to_rgb(h, s, v):
-#     if s == 0.0: return (v, v, v)
-#     i = int(h*6.) # XXX assume int() truncates!
-#     f = (h*6.)-i; p,q,t = v*(1.-s), v*(1.-s*f), v*(1.-s*(1.-f)); i%=6
-#     if i == 0: return (v, t, p)
-#     if i == 1: return (q, v, p)
-#     if i == 2: return (p, v, t)
-#     if i == 3: return (p, q, v)
-#     if i == 4: return (t, p, v)
-#     if i == 5: return (v, p, q)
-
 # def scroll(arr, value):
 #     data = np.roll(arr, 1)
 #     data[0] = value
@@ -181,11 +166,12 @@ class AudioVisualizer():
             self._mel = np.atleast_2d(YS).T * mel_y.T
             self._mel = np.sum(self._mel, axis=0)
             # Scale data to values more suitable for visualization
-            self._mel = self._mel**2.0
+            self._mel /= 100
+            # self._mel = self._mel**2.0
             # Gain normalization
             self.mel_gain.update(
                 np.max(gaussian_filter1d(self._mel, sigma=1.0)))
-            self._mel /= self.mel_gain.value
+            # self._mel /= self.mel_gain.value
             self._mel = self.mel_smoothing.update(self._mel)
 
             self._melUpdated = True
@@ -214,6 +200,11 @@ class AudioVisualizer():
         self.r = np.concatenate((self.r[::-1], self.r)) * 255
         self.g = np.concatenate((self.g[::-1], self.g)) * 255
         self.b = np.concatenate((self.b[::-1], self.b)) * 255
+
+        self.r = self.r.clip(0, 255)
+        self.g = self.g.clip(0, 255)
+        self.b = self.b.clip(0, 255)
+
         return self.r, self.g, self.b
 
     def scrollEffect(self):
@@ -226,7 +217,7 @@ class AudioVisualizer():
         """Effect that originates in the center and scrolls outwards"""
         y = y**2.0
         self.gain.update(y)
-        y /= self.gain.value
+        # y /= self.gain.value
         y *= 255.0
         r = int(np.max(y[:len(y) // 3]))
         g = int(np.max(y[len(y) // 3: 2 * len(y) // 3]))
@@ -242,6 +233,11 @@ class AudioVisualizer():
 
         self.r, self.g, self.b = np.concatenate(
             (self.p[:, ::-1], self.p), axis=1)
+
+        self.r = self.r.clip(0, 255)
+        self.g = self.g.clip(0, 255)
+        self.b = self.b.clip(0, 255)
+
         return self.r, self.g, self.b
 
     def energyEffect(self):
@@ -254,7 +250,7 @@ class AudioVisualizer():
         """Effect that expands from the center with increasing sound energy"""
         y = np.copy(y)
         self.gain.update(y)
-        y /= self.gain.value
+        # y /= self.gain.value
         # Scale by the width of the LED strip
         y *= float((self.n_pixels // 2) - 1)
         # Map color channels according to energy in the different freq bands
@@ -279,6 +275,11 @@ class AudioVisualizer():
         # Set the new pixel value
         self.r, self.g, self.b = np.concatenate(
             (self.p[:, ::-1], self.p), axis=1)
+
+        self.r = self.r.clip(0, 255)
+        self.g = self.g.clip(0, 255)
+        self.b = self.b.clip(0, 255)
+
         return self.r, self.g, self.b
 
 
@@ -321,7 +322,7 @@ def memoize(function):
     return wrapper
 
 
-# @memoize
+@memoize
 def _normalized_linspace(size):
     return np.linspace(0, 1, size)
 
