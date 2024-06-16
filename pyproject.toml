@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "audio-reactive-led-strip"
+version = "0.1.0"
+description = "Get audio from your computer and transform it in RGB colors that you can send to a led strip."
+authors = ["Jordi García Ventura <jordigarciaventura@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "~3.9.0"
+cffi = "1.15.0"
+numpy = "1.21.4"
+pycparser = "2.21"
+pyqt5 = "5.15.6"
+pyqt5-qt5 = "5.15.2"
+pyqt5-sip = "12.9.0"
+pyqtgraph = "0.12.3"
+scipy = "1.7.3"
+soundcard = "0.4.1"
+
+
+[tool.poetry.group.dev.dependencies]
+cx-freeze = "^7.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
